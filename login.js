@@ -1,39 +1,32 @@
 const http = require('http');
-const jwt = require('jsonwebtoken');
 
-const postData = {
-  'username': 'USER',
-  'password': 'senha123'
-};
-
-const token = jwt.sign(postData, 'secret_key');
+const postData = new URLSearchParams({
+  email: 'usuario1@example.com',
+  senha: 'senha1',
+}).toString();
 
 const options = {
   hostname: 'localhost',
-  port: 3000,
-  path: '/login',
+  port: 80,
+  path: '/',
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(token)
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': Buffer.byteLength(postData),
   },
-//   ca: fs.readFileSync('server-cert.pem')
 };
 
 const req = http.request(options, (res) => {
-  let data = '';
-  console.log(`Status code: ${res.statusCode}`);
+  res.setEncoding('utf8');
   res.on('data', (chunk) => {
-    data += chunk;
-  });
-  res.on('end', () => {
-    console.log(data);
+    console.log(chunk);
   });
 });
 
 req.on('error', (error) => {
-  console.error(error);
+  console.error(`Erro na requisição: ${error.message}`);
 });
 
-req.write(token);
+req.write(postData);
+// console.log(postData)
 req.end();
